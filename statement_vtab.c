@@ -278,7 +278,7 @@ static sqlite3_module statement_vtab_module = {
 	.xRowid      = statement_vtab_rowid,
 };
 
-int sqlite3_stmtvtab_init(sqlite3* db, char** pzErrMsg, const sqlite3_api_routines* pApi) {
+int sqlite3_statementvtab_init(sqlite3* db, char** pzErrMsg, const sqlite3_api_routines* pApi) {
 	SQLITE_EXTENSION_INIT2(pApi);
 	return sqlite3_create_module(db, "statement", &statement_vtab_module, NULL);
 }
