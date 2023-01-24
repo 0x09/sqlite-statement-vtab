@@ -2,6 +2,10 @@
  * SQLite module to define virtual tables and table-valued functions natively using SQL.
  * In the interest of compatibility with SQLite's own license (or rather lack thereof),
  * the author disclaims copyright to this source code.
+ * To the extent possible under law, the author(s) have dedicated all copyright and related and neighboring rights
+ * to this software to the public domain worldwide. This software is distributed without any warranty.
+ * Refer to the Creative Commons Zero "CC0-1.0" Public Domain Dedication included with this software or available at
+ * https://creativecommons.org/publicdomain/zero/1.0/
  */
 
 #include "sqlite3ext.h"
