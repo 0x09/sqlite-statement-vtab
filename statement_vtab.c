@@ -314,5 +314,13 @@ __declspec(dllexport)
 #endif
 int sqlite3_statementvtab_init(sqlite3* db, char** pzErrMsg, const sqlite3_api_routines* pApi) {
 	SQLITE_EXTENSION_INIT2(pApi);
+
+	if(sqlite3_libversion_number() < 3024000) {
+		const char errmsg[] = "SQLite versions below 3.24.0 are not supported";
+		if(pzErrMsg && (*pzErrMsg = sqlite3_malloc(sizeof(errmsg))))
+			memcpy(*pzErrMsg, errmsg, sizeof(errmsg));
+		return SQLITE_ERROR;
+	}
+
 	return sqlite3_create_module(db, "statement", &statement_vtab_module, NULL);
 }
