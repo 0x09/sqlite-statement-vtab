@@ -309,10 +309,16 @@ static sqlite3_module statement_vtab_module = {
 	.xRowid      = statement_vtab_rowid,
 };
 
+#ifdef SQLITE_CORE
+#define statement_vtab_entry_point sqlite3_statementvtab_init
+#else
+#define statement_vtab_entry_point sqlite3_extension_init
+#endif
+
 #ifdef _WIN32
 __declspec(dllexport)
 #endif
-int sqlite3_statementvtab_init(sqlite3* db, char** pzErrMsg, const sqlite3_api_routines* pApi) {
+int statement_vtab_entry_point(sqlite3* db, char** pzErrMsg, const sqlite3_api_routines* pApi) {
 	SQLITE_EXTENSION_INIT2(pApi);
 
 	if(sqlite3_libversion_number() < 3024000) {
