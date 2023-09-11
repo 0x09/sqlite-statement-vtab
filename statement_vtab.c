@@ -241,8 +241,8 @@ static int statement_vtab_best_index(sqlite3_vtab* pVTab, sqlite3_index_info* in
 		// skip if this is a constraint on one of our output columns
 		if(index_info->aConstraint[i].iColumn < num_outputs)
 			continue;
-		// a given query plan is only usable if all provided "input" columns are usable and have equal constraints only
-		// is this redundant / an EQ constraint ever unusable?
+		// only select query plans where the constrained columns have exact values to bind to statement parameters
+		// since the alternative requires scanning all possible results from the vtab
 		if(!index_info->aConstraint[i].usable || index_info->aConstraint[i].op != SQLITE_INDEX_CONSTRAINT_EQ)
 			return SQLITE_CONSTRAINT;
 
