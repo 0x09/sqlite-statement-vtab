@@ -74,7 +74,6 @@ static int statement_vtab_create(sqlite3* db, void* pAux, int argc, const char* 
 	}
 
 	int ret;
-	sqlite3_mutex* mutex = sqlite3_db_mutex(db); // only needed to ensure correctness of sqlite3_errmsg
 	sqlite3_stmt* stmt = NULL;
 	char* create = NULL;
 
@@ -91,10 +90,8 @@ static int statement_vtab_create(sqlite3* db, void* pAux, int argc, const char* 
 		goto error;
 	}
 
-	sqlite3_mutex_enter(mutex);
 	if((ret = sqlite3_prepare_v2(db,vtab->sql,vtab->sql_len,&stmt,NULL)) != SQLITE_OK)
 		goto sqlite_error;
-	sqlite3_mutex_leave(mutex);
 	if(!sqlite3_stmt_readonly(stmt)) {
 		ret = SQLITE_ERROR;
 		if(!(*pzErr = sqlite3_mprintf("Statement must be read only.")))
@@ -109,10 +106,8 @@ static int statement_vtab_create(sqlite3* db, void* pAux, int argc, const char* 
 		ret = SQLITE_NOMEM;
 		goto error;
 	}
-	sqlite3_mutex_enter(mutex);
 	if((ret = sqlite3_declare_vtab(db,create)) != SQLITE_OK)
 		goto sqlite_error;
-	sqlite3_mutex_leave(mutex);
 
 	sqlite3_free(create);
 	sqlite3_finalize(stmt);
@@ -121,7 +116,6 @@ static int statement_vtab_create(sqlite3* db, void* pAux, int argc, const char* 
 sqlite_error:
 	if(!(*pzErr = sqlite3_mprintf("%s",sqlite3_errmsg(db))))
 		ret = SQLITE_NOMEM;
-	sqlite3_mutex_leave(mutex);
 error:
 	sqlite3_free(create);
 	sqlite3_finalize(stmt);
