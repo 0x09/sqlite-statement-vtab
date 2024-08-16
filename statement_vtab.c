@@ -238,8 +238,10 @@ static int statement_vtab_best_index(sqlite3_vtab* pVTab, sqlite3_index_info* in
 	int col_max = 0;
 	sqlite3_uint64 used_cols = 0;
 	for(int i = 0; i < index_info->nConstraint; i++) {
-		// skip if this is a constraint on one of our output columns
-		if(index_info->aConstraint[i].iColumn < num_outputs)
+		// skip if this is a limit/offset constraint or a constraint on one of our output columns
+		if(index_info->aConstraint[i].op == SQLITE_INDEX_CONSTRAINT_LIMIT  ||
+		   index_info->aConstraint[i].op == SQLITE_INDEX_CONSTRAINT_OFFSET ||
+		   index_info->aConstraint[i].iColumn < num_outputs)
 			continue;
 		// only select query plans where the constrained columns have exact values to bind to statement parameters
 		// since the alternative requires scanning all possible results from the vtab
