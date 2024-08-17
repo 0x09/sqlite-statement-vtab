@@ -136,7 +136,10 @@ static int statement_vtab_open(sqlite3_vtab* pVTab, sqlite3_vtab_cursor** ppCurs
 		return SQLITE_NOMEM;
 
 	*ppCursor = &cur->base;
-	cur->param_argv = sqlite3_malloc(sizeof(*cur->param_argv)*vtab->num_inputs);
+	cur->stmt = NULL;
+	if(!(cur->param_argv = sqlite3_malloc64(sizeof(*cur->param_argv)*vtab->num_inputs)))
+		return SQLITE_NOMEM;
+
 	return sqlite3_prepare_v2(vtab->db,vtab->sql,vtab->sql_len,&cur->stmt,NULL);
 }
 
