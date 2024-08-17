@@ -232,6 +232,13 @@ static int statement_vtab_best_index(sqlite3_vtab* pVTab, sqlite3_index_info* in
 	index_info->orderByConsumed = 0;
 	index_info->estimatedCost = 1;
 	index_info->estimatedRows = 1;
+
+	// avoid searching for input columns to bind to parameters if colUsed indicates this query has none
+	// for tables with more than 63 columns the high bit indicates that one or more of these is set; in that case
+	// there still may be no params but we need to continue on to check the constraint array
+	if(!(index_info->colUsed >> (num_outputs < 63 ? num_outputs : 63)))
+		return SQLITE_OK;
+
 	int col_max = 0;
 	sqlite3_uint64 used_cols = 0;
 	for(int i = 0; i < index_info->nConstraint; i++) {
