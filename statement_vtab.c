@@ -221,7 +221,8 @@ static int statement_vtab_filter(sqlite3_vtab_cursor* cur, int idxNum, const cha
 	sqlite3_stmt* stmt = stmtcur->stmt;
 	sqlite3_reset(stmt);
 	sqlite3_clear_bindings(stmt);
-	memset(stmtcur->param_argv,0,sizeof(*stmtcur->param_argv)*vtab->num_inputs);
+	if(vtab->num_inputs)
+		memset(stmtcur->param_argv,0,sizeof(*stmtcur->param_argv)*vtab->num_inputs);
 
 	int ret;
 	for(int i = 0; i < argc; i++) {
