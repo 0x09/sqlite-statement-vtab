@@ -173,11 +173,21 @@ static int statement_vtab_eof(sqlite3_vtab_cursor* cur) {
 
 static int statement_vtab_column(sqlite3_vtab_cursor* cur, sqlite3_context* ctx, int i) {
 	struct statement_cursor* stmtcur = (struct statement_cursor*)cur;
-	int num_outputs = ((struct statement_vtab*)cur->pVtab)->num_outputs;
-	if(i < num_outputs)
-		sqlite3_result_value(ctx,sqlite3_column_value(stmtcur->stmt,i));
-	else if(i-num_outputs < stmtcur->param_argc)
-		sqlite3_result_value(ctx,stmtcur->param_argv[i-num_outputs]);
+	struct statement_vtab* vtab = (struct statement_vtab*)cur->pVtab;
+	int num_outputs = vtab->num_outputs;
+	int num_inputs = vtab->num_inputs;
+
+	sqlite3_value* v;
+	if(i < num_outputs) // a result from the statement
+		v = sqlite3_column_value(stmtcur->stmt,i);
+	else if(i-num_outputs < num_inputs) // one of the input parameters
+		v = stmtcur->param_argv[i-num_outputs];
+	else
+		return SQLITE_RANGE;
+
+	if(v)
+		sqlite3_result_value(ctx,v);
+
 	return SQLITE_OK;
 }
 
@@ -205,30 +215,32 @@ static inline int decode_param_idx(int i, const char* param_map) {
 // in terms of a statement table this translates to which parameters will be available to bind.
 static int statement_vtab_filter(sqlite3_vtab_cursor* cur, int idxNum, const char* idxStr, int argc, sqlite3_value** argv) {
 	struct statement_cursor* stmtcur = (struct statement_cursor*)cur;
+	struct statement_vtab* vtab = (struct statement_vtab*)cur->pVtab;
+
 	stmtcur->rowid = 1;
 	sqlite3_stmt* stmt = stmtcur->stmt;
 	sqlite3_reset(stmt);
 	sqlite3_clear_bindings(stmt);
+	memset(stmtcur->param_argv,0,sizeof(*stmtcur->param_argv)*vtab->num_inputs);
 
 	int ret;
 	for(int i = 0; i < argc; i++) {
 		int param_idx = idxStr ? decode_param_idx(i,idxStr) : i+1;
 		if((ret = sqlite3_bind_value(stmt,param_idx,argv[i])) != SQLITE_OK)
 			return ret;
+		// shallow copy args as these are explicitly retained in sqlite3WhereCodeOneLoopStart
+		stmtcur->param_argv[param_idx-1] = argv[i];
 	}
 	ret = sqlite3_step(stmt);
 	if(!(ret == SQLITE_ROW || ret == SQLITE_DONE))
 		return ret;
 
-	assert(((struct statement_vtab*)cur->pVtab)->num_inputs >= argc);
-	if((stmtcur->param_argc = argc)) // shallow copy args as these are explicitly retained in sqlite3WhereCodeOneLoopStart
-		memcpy(stmtcur->param_argv,argv,sizeof(*stmtcur->param_argv)*argc);
-
 	return SQLITE_OK;
 }
 
 static int statement_vtab_best_index(sqlite3_vtab* pVTab, sqlite3_index_info* index_info){
-	int num_outputs = ((struct statement_vtab*)pVTab)->num_outputs;
+	struct statement_vtab* vtab = (struct statement_vtab*)pVTab;
+	int num_outputs = vtab->num_outputs;
 	int out_constraints = 0;
 	index_info->orderByConsumed = 0;
 	index_info->estimatedCost = 1;
@@ -264,6 +276,9 @@ static int statement_vtab_best_index(sqlite3_vtab* pVTab, sqlite3_index_info* in
 
 		out_constraints++;
 	}
+
+	if(vtab->num_inputs < col_max)
+		return SQLITE_RANGE;
 
 	// if the constrained columns are contiguous then we can just tell sqlite to order the arg vector provided to xFilter
 	// in the same order as our column bindings, so there's no need to map between these
