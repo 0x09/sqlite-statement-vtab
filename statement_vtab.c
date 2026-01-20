@@ -9,7 +9,6 @@ SQLITE_EXTENSION_INIT1
 
 #include <string.h>
 #include <stdio.h>
-#include <assert.h>
 #include <stdint.h>
 #include <limits.h>
 
@@ -199,7 +198,6 @@ static int statement_vtab_column(sqlite3_vtab_cursor* cur, sqlite3_context* ctx,
 const static size_t param_idx_size = (sizeof(int)*CHAR_BIT+5)/6;
 
 static inline void encode_param_idx(int i, char* restrict param_map, int param_idx) {
-	assert(param_idx >= 0);
 	for(size_t j = 0; j < param_idx_size; j++)
 		param_map[i*param_idx_size+j] = ((param_idx >> 6*j) & 63) + 33;
 }
