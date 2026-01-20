@@ -27,7 +27,7 @@ all: $(module)
 static: $(name).a
 
 install: $(module)
-	install $^ $(PREFIX)/lib/
+	install -m644 $^ $(PREFIX)/lib/
 
 clean:
 	rm -f $(module) $(name).a $(name).o
