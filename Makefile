@@ -28,4 +28,4 @@ install: $(module)
 	install -m644 $^ $(PREFIX)/lib/
 
 clean:
-	rm -f $(module) $(name).a $(name).o
+	$(RM) $(module) $(name).a $(name).o
