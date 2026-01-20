@@ -1,7 +1,5 @@
 name = statement_vtab
 
-CC ?= cc
-AR ?= ar
 CFLAGS := -O3 $(CFLAGS)
 PREFIX ?= /usr/local
 
