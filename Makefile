@@ -1,6 +1,6 @@
 name = statement_vtab
 
-CFLAGS := -O3 $(CFLAGS)
+CFLAGS := -std=c99 -Wall -O3 $(CFLAGS)
 PREFIX ?= /usr/local
 
 soext = so
@@ -14,10 +14,10 @@ module = $(name).$(soext)
 .PHONY: all static install clean
 
 $(module): $(src)
-	$(CC) -fPIC -std=c99 -shared $(CFLAGS) -o $@ $^
+	$(CC) -fPIC -shared $(CFLAGS) -o $@ $^
 
 $(name).a: $(src)
-	$(CC) -std=c99 -DSQLITE_CORE $(CFLAGS) -c $^
+	$(CC) -DSQLITE_CORE $(CFLAGS) -c $^
 	$(AR) rcs $(name).a $(name).o
 
 all: $(module)
