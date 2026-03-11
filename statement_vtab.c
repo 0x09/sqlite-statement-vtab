@@ -38,7 +38,9 @@ static char* build_create_statement(sqlite3_stmt* stmt) {
 			sqlite3_free(sqlite3_str_finish(sql));
 			return NULL;
 		}
-		const char* type = sqlite3_column_decltype(stmt,i);
+		const char* type = NULL;
+		if(!sqlite3_compileoption_used("OMIT_DECLTYPE"))
+			type = sqlite3_column_decltype(stmt,i);
 		sqlite3_str_appendf(sql,"%Q %s,",name,(type?type:""));
 	}
 	for(int i = 0, nargs = sqlite3_bind_parameter_count(stmt); i < nargs; i++) {
