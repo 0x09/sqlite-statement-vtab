@@ -292,7 +292,7 @@ static int statement_vtab_best_index(sqlite3_vtab* pVTab, sqlite3_index_info* in
 
 	// otherwise map the constraint index as provided to xFilter to column index for bindings
 	// this will only be necessary when constraints are not contiguous e.g. where arg1 = x and arg3 = y
-	// in that case bound parameter indexes are encoded as a string in idxStr, in the order they appear in constriants
+	// in that case bound parameter indexes are encoded as a string in idxStr, in the order they appear in constraints
 	if((size_t)out_constraints > (SIZE_MAX-1)/param_idx_size) {
 		sqlite3_free(pVTab->zErrMsg);
 		if(!(pVTab->zErrMsg = sqlite3_mprintf("Too many constraints to index: %d",out_constraints)))
