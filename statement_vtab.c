@@ -199,7 +199,7 @@ static int statement_vtab_column(sqlite3_vtab_cursor* cur, sqlite3_context* ctx,
 // due to sqlite's current hard limit on number of columns but makes statement_vtab agnostic to changes to this limit
 const static size_t param_idx_size = (sizeof(int)*CHAR_BIT+5)/6;
 
-static inline void encode_param_idx(int i, char* restrict param_map, int param_idx) {
+static inline void encode_param_idx(int i, char* param_map, int param_idx) {
 	for(size_t j = 0; j < param_idx_size; j++)
 		param_map[i*param_idx_size+j] = ((param_idx >> 6*j) & 63) + 33;
 }
