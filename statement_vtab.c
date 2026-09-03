@@ -99,6 +99,12 @@ static int statement_vtab_create(sqlite3* db, void* pAux, int argc, const char* 
 			ret = SQLITE_NOMEM;
 		goto error;
 	}
+	if(sqlite3_stmt_isexplain(stmt)) {
+		ret = SQLITE_ERROR;
+		if(!(*pzErr = sqlite3_mprintf("Statement must not use EXPLAIN.")))
+			ret = SQLITE_NOMEM;
+		goto error;
+	}
 
 	vtab->num_inputs = sqlite3_bind_parameter_count(stmt);
 	vtab->num_outputs = sqlite3_column_count(stmt);
@@ -344,8 +350,8 @@ __declspec(dllexport)
 int statement_vtab_entry_point(sqlite3* db, char** pzErrMsg, const sqlite3_api_routines* pApi) {
 	SQLITE_EXTENSION_INIT2(pApi);
 
-	if(sqlite3_libversion_number() < 3024000) {
-		const char errmsg[] = "SQLite versions below 3.24.0 are not supported";
+	if(sqlite3_libversion_number() < 3028000) {
+		const char errmsg[] = "SQLite versions below 3.28.0 are not supported";
 		if(pzErrMsg && (*pzErrMsg = sqlite3_malloc(sizeof(errmsg))))
 			memcpy(*pzErrMsg, errmsg, sizeof(errmsg));
 		return SQLITE_ERROR;
