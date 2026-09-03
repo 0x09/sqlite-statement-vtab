@@ -4,8 +4,11 @@ CFLAGS := -std=c99 -Wall -O3 $(CFLAGS)
 PREFIX ?= /usr/local
 
 soext = so
-ifeq ($(shell uname), Darwin)
+target = $(shell $(CC) -dumpmachine)
+ifneq ($(findstring darwin,$(target)),)
 	soext = dylib
+else ifneq ($(findstring mingw,$(target)),)
+	soext = dll
 endif
 
 src = $(name).c
