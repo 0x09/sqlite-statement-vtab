@@ -81,7 +81,7 @@ name           path        pageno      pagetype    ncell       payload     unuse
 -------------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
 sqlite_master  /           1           leaf        2           206         3774        115         0           4096      
 ```
-And in this case the declared type affinity of the columns is preserved as well.
+And in this case the declared type affinity of the columns is preserved as well (as long as SQLite was not compiled with SQLITE_OMIT_DECLTYPE).
 
 ## Parameter binding
 For substituting values into the statement, statement_vtab relies on SQLite's parameter binding syntax. Any bound parameter names become hidden columns in the virtual table, and so can be used as arguments to the resulting table-valued function or referenced directly. See https://www.sqlite.org/lang_expr.html#varparam for a detailed description of SQLite's syntax for parameter binding.
